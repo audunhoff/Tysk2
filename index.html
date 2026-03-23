@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deutsch VG2 – 14 Dager</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400&display=swap');
+
+:root {
+  --bg: #0e0e22; --bg2: #161630; --gold: #e8b84b; --gold2: #f5d080;
+  --blue: #5b8dd9; --green: #4dc490; --red: #e05555;
+  --text: #ddd6c4; --text2: #a09888; --border: rgba(255,255,255,0.09);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 15px;
+}
+
+/* HEADER */
+#header {
+  background: rgba(0,0,0,0.6);
+  border-bottom: 1px solid rgba(232,184,75,0.3);
+  padding: 12px 16px;
+  position: sticky; top: 0; z-index: 50;
+}
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.header-title { font-size: 9px; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin-bottom: 3px; }
+.header-h1 { font-family: 'Playfair Display', serif; font-size: clamp(16px,5vw,26px); color: #fff; }
+.stats { display: flex; gap: 16px; flex-shrink: 0; }
+.stat { text-align: center; }
+.stat-n { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; line-height: 1; }
+.stat-l { font-size: 8px; letter-spacing: 1px; color: var(--text2); text-transform: uppercase; }
+
+/* DAG PICKER */
+#picker {
+  display: flex; gap: 6px; overflow-x: auto; padding: 10px 14px;
+  background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border);
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+#picker::-webkit-scrollbar { display: none; }
+.pbtn {
+  flex-shrink: 0; padding: 6px 13px; border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05);
+  color: #999; cursor: pointer; font-size: 12.5px; white-space: nowrap;
+  font-family: 'Source Sans 3', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+.pbtn.active { background: rgba(232,184,75,0.2); border-color: rgba(232,184,75,0.5); color: var(--gold); font-weight: 600; }
+.pbtn.done { color: var(--green); border-color: rgba(77,196,144,0.3); }
+
+/* MAIN */
+#main { padding: 18px 16px 60px; max-width: 800px; margin: 0 auto; }
+
+/* DAG HEADER */
+.dag-nr { font-size: 10px; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin-bottom: 4px; }
+.dag-h2 { font-family: 'Playfair Display', serif; font-size: clamp(18px,5vw,28px); color: #fff; margin-bottom: 3px; }
+.dag-tema { font-style: italic; color: var(--text2); font-size: 14px; margin-bottom: 20px; }
+
+/* TABS */
+.tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+.tbtn {
+  padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer;
+  background: rgba(255,255,255,0.07); color: #bbb;
+  font-family: 'Source Sans 3', sans-serif; font-size: 13px;
+  -webkit-tap-highlight-color: transparent;
+}
+.tbtn.active { background: var(--gold); color: #111; font-weight: 600; }
+
+/* PANELS */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* CARDS */
+.card { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; padding: 15px 16px; margin-bottom: 14px; }
+.card-intro { line-height: 1.8; font-size: 14px; color: #c8c0b0; }
+.regel-t { font-weight: 700; font-size: 14px; color: var(--gold); margin-bottom: 8px; }
+.regel-b { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #b0c8e8; line-height: 1.9; white-space: pre-wrap; word-break: break-word; }
+.huskeregel { background: rgba(232,184,75,0.09); border: 1px solid rgba(232,184,75,0.3); border-radius: 10px; padding: 13px 16px; margin-bottom: 12px; font-style: italic; color: #f0d090; font-size: 13.5px; line-height: 1.7; }
+.lyttetips { background: rgba(77,196,144,0.07); border: 1px solid rgba(77,196,144,0.22); border-radius: 10px; padding: 11px 16px; font-size: 13px; color: #7ad8b0; line-height: 1.6; }
+
+/* VOCAB */
+.vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin-bottom: 14px; }
+.vocab-card { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; padding: 10px 13px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.v-de { font-weight: 600; color: var(--gold); font-size: 14px; }
+.v-no { font-style: italic; color: #88a0b8; font-size: 13px; text-align: right; }
+
+/* OPPGAVER */
+.prog-wrap { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; margin-bottom: 16px; overflow: hidden; }
+.prog-bar { height: 100%; background: linear-gradient(90deg, var(--gold), var(--green)); border-radius: 2px; transition: width 0.4s; }
+.done-msg { background: rgba(77,196,144,0.15); border: 1px solid rgba(77,196,144,0.4); border-radius: 8px; padding: 9px 14px; color: var(--green); font-size: 13px; margin-bottom: 14px; }
+.opp-kort { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; padding: 15px 16px; margin-bottom: 16px; }
+.opp-nr { font-size: 9px; letter-spacing: 2px; color: #666; text-transform: uppercase; margin-bottom: 5px; }
+.opp-q { font-size: 15px; color: #e0d8c8; line-height: 1.5; margin-bottom: 12px; }
+.alt {
+  display: block; width: 100%; text-align: left; padding: 11px 14px;
+  border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05); color: #bbb;
+  font-family: 'Source Sans 3', sans-serif; font-size: 14px; cursor: pointer;
+  margin-bottom: 8px; line-height: 1.4;
+  -webkit-tap-highlight-color: transparent;
+}
+.alt.riktig { background: rgba(60,190,100,0.2); border-color: rgba(60,190,100,0.5); color: #80e090; }
+.alt.galt   { background: rgba(210,70,70,0.2);  border-color: rgba(210,70,70,0.4);  color: #f08080; }
+.alt.valgt  { background: rgba(232,184,75,0.15); border-color: rgba(232,184,75,0.4); color: var(--gold); }
+.fasit { background: rgba(232,184,75,0.07); border: 1px solid rgba(232,184,75,0.2); border-radius: 7px; padding: 10px 14px; margin-top: 10px; font-size: 13.5px; color: #d0c8a0; line-height: 1.6; }
+.fasit-lbl { font-size: 9px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; font-weight: 700; margin-right: 5px; }
+
+/* Desktop layout */
+@media (min-width: 680px) {
+  #page { display: flex; height: 100vh; overflow: hidden; flex-direction: column; }
+  #header { flex-shrink: 0; }
+  #body { display: flex; flex: 1; min-height: 0; }
+  #picker {
+    flex-direction: column; width: 175px; min-width: 175px; flex-shrink: 0;
+    overflow-y: auto; overflow-x: hidden; border-right: 1px solid var(--border);
+    border-bottom: none; padding: 12px 8px; gap: 3px; height: auto;
+    display: flex;
+  }
+  .pbtn { border-radius: 7px; text-align: left; padding: 9px 10px; border-left: 3px solid transparent; }
+  .pbtn.active { border-left-color: var(--gold); }
+  #main { overflow-y: auto; padding: 22px 26px 40px; }
+}
+</style>
+</head>
+<body>
+<div id="page">
+  <div id="header">
+    <div class="header-top">
+      <div>
+        <div class="header-title">Intensivt læringsopplegg · VG2</div>
+        <div class="header-h1">🇩🇪 Deutsch — 14 Dager</div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-n" id="sR" style="color:var(--green)">0</div><div class="stat-l">Riktige</div></div>
+        <div class="stat"><div class="stat-n" id="sB" style="color:var(--gold)">0</div><div class="stat-l">Besvart</div></div>
+        <div class="stat"><div class="stat-n" id="sD" style="color:var(--blue)">0</div><div class="stat-l">Dager✓</div></div>
+      </div>
+    </div>
+  </div>
+  <div id="body">
+    <div id="picker"></div>
+    <div id="main"></div>
+  </div>
+</div>
+<script>
+const curriculum = [
+  {
+    dag:1, tittel:"Substantiver & Genus", tema:"Die, Der, Das – Kjønn og bestemt artikkel",
+    forklaring:"Alle tyske substantiver har et grammatisk kjønn: maskulinum (der), femininum (die) eller nøytrum (das). I flertall brukes alltid 'die'. Kjønnet må læres utenat for hvert ord, men det finnes nyttige mønstre.",
+    regler:[
+      ["🔵 Maskulinum (der)","Mannlige personer/yrker: der Mann, der Lehrer, der Arzt\nUkedager, måneder, årstider: der Montag, der Januar, der Sommer\nOrd på -er, -ling, -ig: der Wagen, der Frühling, der König"],
+      ["🔴 Femininum (die)","Kvinnelige personer: die Frau, die Lehrerin\nOrd på -ung, -heit, -keit, -schaft, -ion: die Zeitung, die Freiheit, die Nation\nFleste blomster/trær: die Rose, die Eiche"],
+      ["🟡 Nøytrum (das)","Diminutiv (-chen, -lein): das Mädchen, das Büchlein\nGerundier: das Essen, das Lernen\nOrd på -um, -ment: das Museum, das Instrument\nDe fleste land: das Deutschland"],
+    ],
+    huskeregel:"🧠 Lær alltid et nytt ord med artikkelen! Ikke 'Haus' – men 'das Haus'. Bruk farger: blå=der, rød=die, gul=das.",
+    lyttetips:"🎧 <b>Nicos Weg A1 – Ganzer Film</b> &nbsp;|&nbsp; <a href='https://www.youtube.com/watch?v=4-eDoThe6qo' target='_blank' style='color:var(--green)'>▶ Se på YouTube (bekreftet lenke)</a> – Legg merke til artiklene der/die/das i naturlig tale.",
+    ordforrad:[["die Schule","skolen"],["der Lehrer","læreren (m)"],["die Lehrerin","læreren (f)"],["das Buch","boken"],["der Schüler","eleven (m)"],["die Schülerin","eleven (f)"],["das Heft","heftet"],["der Stift","pennen"],["die Tasche","vesken"],["das Zimmer","rommet"]],
+    oppgaver:[
+      ["Hva er riktig artikkel for 'Freiheit' (frihet)?",["der","die","das"],"die","Ord på -heit er alltid femininum → die Freiheit"],
+      ["Hva er riktig artikkel for 'Mädchen' (jente)?",["der","die","das"],"das","Ord på -chen er alltid nøytrum, selv om de betegner kvinner → das Mädchen"],
+      ["Hva er riktig artikkel for 'Montag'?",["der","die","das"],"der","Alle ukedager er maskulinum → der Montag"],
+      ["Oversett: 'boken' på tysk",["das Buch","die Buch","der Buch"],"das Buch","Buch er nøytrum → das Buch"],
+      ["Hva er flertallsartikkelen for ALLE substantiver?",["der","die","das"],"die","I flertall brukes alltid 'die', uansett kjønn"],
+    ]
+  },
+  {
+    dag:2, tittel:"Nominativ & Akkusativ", tema:"Hvem gjør hva? Subjekt og objekt",
+    forklaring:"Tysk har fire kasus: Nominativ, Akkusativ, Dativ og Genitiv. Nominativ er subjektet, akkusativ er direkteobjektet. KUN maskulinum endrer seg i akkusativ.",
+    regler:[
+      ["📗 Nominativ – subjektet","Der Mann liest. / Die Frau singt. / Das Kind schläft.\nSpørreord: Wer? (Hvem?)\nEtter er/ist: Das ist der Mann."],
+      ["📘 Akkusativ – direkteobjektet","Ich sehe den Mann.  (der → den i akk.!)\nIch liebe die Frau. (die forblir die)\nIch kaufe das Buch. (das forblir das)\nSpørreord: Wen? Was?\n⚠️  KUN maskulinum endrer seg: der → den"],
+      ["📋 Akkusativpreposisjoner","durch, für, gegen, ohne, um, bis, entlang\nEks: Ich kaufe ein Geschenk für den Vater."],
+    ],
+    huskeregel:"🧠 Bare maskulinum endres i akkusativ: DER → DEN. Femininum og nøytrum er uendret!",
+    lyttetips:"🎧 <b>Nicos Weg A1 – Ganzer Film</b> &nbsp;|&nbsp; <a href='https://www.youtube.com/watch?v=4-eDoThe6qo' target='_blank' style='color:var(--green)'>▶ YouTube</a> – Identifiser subjekt (nominativ) og direkteobjekt (akkusativ) i dialogen.",
+    ordforrad:[["kaufen","å kjøpe"],["sehen","å se"],["haben","å ha"],["brauchen","å trenge"],["finden","å finne"],["der Vater","faren"],["die Mutter","moren"],["der Bruder","broren"],["die Schwester","søsteren"],["das Kind","barnet"]],
+    oppgaver:[
+      ["Fyll inn: 'Ich sehe ___ Mann.'",["der","den","dem"],"den","Mann er i akkusativ (direkte obj.) og maskulinum → der → den"],
+      ["Fyll inn: 'Das ist ___ Mutter von Anna.'",["die","den","der"],"die","Etter 'das ist' brukes nominativ, Mutter er femininum → die"],
+      ["Hvilken preposisjon tar ALLTID akkusativ?",["mit","für","bei"],"für","'für' tar alltid akkusativ. 'mit'/'bei' tar dativ."],
+      ["Oversett: 'Jeg kjøper boken.'",["Ich kaufe das Buch.","Ich kaufe dem Buch.","Ich kaufe des Buches."],"Ich kaufe das Buch.","Buch er nøytrum, endres ikke i akk. → das Buch"],
+      ["Hva er spørreordet for akkusativ?",["Wer?","Wem?","Wen?"],"Wen?","Wen/Was = akkusativ. Wer = nominativ, Wem = dativ."],
+    ]
+  },
+  {
+    dag:3, tittel:"Dativ & Genitiv", tema:"Til hvem? Hvems? – Indirekte objekt og eiendom",
+    forklaring:"Dativ brukes for det indirekte objektet og etter visse preposisjoner. Genitiv viser eiendom og tilhørighet.",
+    regler:[
+      ["📙 Dativ – indirekte objekt","der→dem | die→der | das→dem | die(fl.)→den\nSpørreord: Wem?\nIch gebe dem Mann das Buch.\nDativpreposisjoner: aus, bei, mit, nach, seit, von, zu"],
+      ["📕 Genitiv – eiendom","der→des(+s) | die→der | das→des(+s)\nDas Auto des Mannes.  /  Die Tasche der Frau.\nI tale: das Auto von dem Mann"],
+      ["🗂️ Kasustabeller","         Nom.  Akk.  Dat.  Gen.\nMask(m): der   den   dem   des\nFem (f): die   die   der   der\nNeut(n): das   das   dem   des\nFlert.:  die   die   den   der"],
+    ],
+    huskeregel:"🧠 Dativ: maskulinum+nøytrum → dem, femininum → der. Flertall → den (substantivet får +n).",
+    lyttetips:"🎧 <b>Nicos Weg A1</b> &nbsp;|&nbsp; <a href='https://www.youtube.com/watch?v=4-eDoThe6qo' target='_blank' style='color:var(--green)'>▶ YouTube</a> – Lytt og noter når du hører 'dem', 'der', 'den'. Prøv å bestemme kasus.",
+    ordforrad:[["geben","å gi"],["helfen (+Dat)","å hjelpe"],["gehören","å tilhøre"],["mit","med (dativ)"],["nach","til/etter (dativ)"],["seit","siden (dativ)"],["von","fra/av (dativ)"],["zu","til (dativ)"],["aus","fra/ut av (dativ)"],["bei","hos/ved (dativ)"]],
+    oppgaver:[
+      ["Fyll inn: 'Ich helfe ___ Frau.'",["die","der","den"],"der","'helfen' tar dativ. Frau er fem., dativ fem. = der"],
+      ["Hvilken artikkel brukes i dativ flertall?",["die","der","den"],"den","Dativ flertall = 'den', substantivet får gjerne +n"],
+      ["Fyll inn genitiv: 'Das Auto ___ Mannes'",["der","des","dem"],"des","Mask. genitiv = des, substantivet får +s"],
+      ["Hvilken preposisjon tar alltid dativ?",["für","gegen","mit"],"mit","'mit' (med) tar alltid dativ."],
+      ["'Jeg gir mannen boken.'",["Ich gebe dem Mann das Buch.","Ich gebe den Mann das Buch.","Ich gebe der Mann das Buch."],"Ich gebe dem Mann das Buch.","Mann = indirekte obj. (dativ mask.) → dem. Buch = direkte obj. (akk. nøyt.) → das"],
+    ]
+  },
+  {
+    dag:4, tittel:"Verb i presens", tema:"Regelmessige og sterke verb + hjelpeverb",
+    forklaring:"Tyske verb bøyes etter person og tall. De fleste er regelmessige, men mange vanlige verb er sterke og må pugges.",
+    regler:[
+      ["📗 Regelmessige verb – malen","machen: ich mache / du machst / er macht\n         wir machen / ihr macht / sie machen\nRegel: stamme + endelse (-e, -st, -t, -en, -t, -en)"],
+      ["📘 Sterke verb – vokalskifte (du/er-form)","fahren:   du fährst,   er fährt   (a→ä)\nlesen:    du liest,    er liest    (e→ie)\ngeben:    du gibst,    er gibt     (e→i)\nsehen:    du siehst,   er sieht    (e→ie)\nschlafen: du schläfst, er schläft"],
+      ["⭐ sein / haben / werden","SEIN:    ich bin  / du bist  / er ist  / wir sind / ihr seid / sie sind\nHABEN:   ich habe / du hast  / er hat  / wir haben/ ihr habt / sie haben\nWERDEN:  ich werde/ du wirst / er wird / wir werden/ihr werdet/sie werden"],
+    ],
+    huskeregel:"🧠 Sterke verb: a→ä (fahren, schlafen), e→ie (sehen, lesen), e→i (geben, sprechen). Bare i du/er-form!",
+    lyttetips:"🎧 <b>DW: Langsam gesprochene Nachrichten</b> &nbsp;|&nbsp; <a href='https://www.youtube.com/results?search_query=DW+Langsam+gesprochene+Nachrichten' target='_blank' style='color:var(--green)'>▶ Søk på YouTube</a> – Nyheter i sakte tempo. Finn verbene og identifiser regelmessige vs. sterke.",
+    ordforrad:[["machen","å gjøre/lage"],["gehen","å gå"],["kommen","å komme"],["sprechen","å snakke"],["essen","å spise"],["trinken","å drikke"],["fahren","å kjøre/reise"],["schreiben","å skrive"],["lesen","å lese"],["wohnen","å bo"]],
+    oppgaver:[
+      ["Bøy 'machen' for 'er': 'Er ___'",["macht","machen","machst"],"macht","3. pers. entall → -t: er macht"],
+      ["Sterkt verb: 'Er ___ das Buch.' (lesen)",["liest","leset","lest"],"liest","'lesen' e→ie i er-form → er liest"],
+      ["'wir' + sein?",["sind","seid","sein"],"sind","wir sind (ihr seid = dere er)"],
+      ["'Du ___ nach Berlin.' (fahren)",["fährst","fahrst","fahrenst"],"fährst","'fahren' sterkt, a→ä i du-form → du fährst"],
+      ["'De spiser middag.'",["Sie essen Abendessen.","Sie isst Abendessen.","Sie esst Abendessen."],"Sie essen Abendessen.","3. pers. flertall → infinitivform: essen"],
+    ]
+  },
+  {
+    dag:5, tittel:"Preteritum & Perfektum", tema:"Fortid – Imperfekt og Perfekt",
+    forklaring:"Tysk har to fortidsformer: Preteritum (skrift/fortelling) og Perfektum (muntlig). I fortellinger brukes preteritum.",
+    regler:[
+      ["📗 Preteritum – svake verb","Stamme + -te, -test, -te, -ten, -tet, -ten\nmachen→machte | kaufen→kaufte | wohnen→wohnte\nEr machte die Aufgabe."],
+      ["📘 Preteritum – sterke verb (vokalskifte, pugg!)","gehen→ging | kommen→kam | sehen→sah\ngeben→gab  | fahren→fuhr | schreiben→schrieb\nsein→war   | haben→hatte"],
+      ["📙 Perfektum – haben/sein + Partizip II","Svake:  ge- + stamme + -t    (machen→gemacht)\nSterke: ge- + stamme + -en   (gehen→gegangen)\n\nMed HABEN: Ich habe gegessen.\nMed SEIN:  Ich bin gegangen.  (bevegelsesverb!)\nSEIN-verb: gehen, kommen, fahren, laufen, fliegen"],
+    ],
+    huskeregel:"🧠 SEIN i perfektum = bevegelse eller tilstandsendring. Alt annet → HABEN.",
+    lyttetips:"🎧 <b>DW: Langsam gesprochene Nachrichten</b> &nbsp;|&nbsp; <a href='https://www.youtube.com/results?search_query=DW+Langsam+gesprochene+Nachrichten' target='_blank' style='color:var(--green)'>▶ Søk på YouTube</a> – Lytt og noter verb i fortid. Preteritum eller perfektum?",
+    ordforrad:[["gestern","i går"],["vorgestern","i forgårs"],["letzte Woche","forrige uke"],["letztes Jahr","i fjor"],["früher","tidligere"],["damals","den gang"],["plötzlich","plutselig"],["dann","deretter"],["danach","etterpå"],["zuerst","først"]],
+    oppgaver:[
+      ["Preteritum av 'machen' for 'er':",["machte","gemacht","macht"],"machte","Svake verb preteritum: stamme + -te → er machte"],
+      ["Perfektum av 'gehen': 'Ich ___ nach Hause ___.'",["habe / gegangen","bin / gegangen","bin / gegehen"],"bin / gegangen","'gehen' = bevegelsesverb → sein. Partizip II: gegangen"],
+      ["Preteritum av 'sein'?",["war","gewesen","ist"],"war","sein → war (uregelmessig)"],
+      ["Perfektum av 'kaufen': 'Sie ___ ein Buch ___.'",["hat / gekauft","ist / gekauft","hat / kaufte"],"hat / gekauft","'kaufen' tar haben. Partizip II: gekauft"],
+      ["Preteritum: 'Han kom fra Berlin.'",["Er kam aus Berlin.","Er kommt aus Berlin.","Er ist aus Berlin."],"Er kam aus Berlin.","Preteritum av 'kommen' = 'kam'"],
+    ]
+  },
+  {
+    dag:6, tittel:"Adjektivbøying", tema:"Adjektivendelser etter ulike artikler",
+    forklaring:"Adjektiver foran substantiv må bøyes. Endelsen avhenger av artikkel (bestemt/ubestemt/ingen) og kasus.",
+    regler:[
+      ["📗 Etter bestemt artikkel","Nom: der alte Mann  /  die alte Frau  /  das alte Haus\nAkk: den alten Mann /  die alte Frau  /  das alte Haus\nDat: dem alten Mann /  der alten Frau /  dem alten Haus\nRegel: oftest -e eller -en"],
+      ["📘 Etter ubestemt artikkel (ein)","Nom: ein alter Mann  /  eine alte Frau  /  ein altes Haus\nAkk: einen alten Mann/  eine alte Frau  /  ein altes Haus\nDat: einem alten Mann/  einer alten Frau/  einem alten Haus"],
+      ["📙 Predikativt adjektiv – ingen bøying!","Der Mann ist alt.  ✓  (IKKE: Der Mann ist alter.)\nDie Frau ist schön. ✓  /  Das Kind ist klein. ✓\nAdjektiv ETTER verb bøyes IKKE."],
+    ],
+    huskeregel:"🧠 Predikativt = ingen bøying. Attributivt (foran subst.) = bøyes. Etter bestemt art. = mest -en/-e.",
+    lyttetips:"🎧 <b>Nicos Weg A1 – Ganzer Film</b> &nbsp;|&nbsp; <a href='https://www.youtube.com/watch?v=4-eDoThe6qo' target='_blank' style='color:var(--green)'>▶ YouTube</a> – Lytt etter adjektiver foran substantiv og prøv å høre endelsene.",
+    ordforrad:[["alt","gammel"],["jung","ung"],["groß","stor"],["klein","liten"],["schön","vakker"],["hässlich","stygg"],["interessant","interessant"],["langweilig","kjedelig"],["schnell","rask"],["langsam","langsom"]],
+    oppgaver:[
+      ["'Ich sehe den ___ Mann.' (alt)",["alte","alten","alter"],"alten","Etter bestemt artikkel, akk. mask. → -en: den alten Mann"],
+      ["'Das ist ein ___ Haus.' (schön)",["schöne","schönes","schönen"],"schönes","Etter 'ein', nom. nøytrum → -es: ein schönes Haus"],
+      ["'Die Frau ist ___.' (jung)",["junge","jungen","jung"],"jung","Predikativt adjektiv (etter ist) bøyes IKKE"],
+      ["'Mit dem ___ Auto fahre ich.' (schnell)",["schnellen","schnelle","schneller"],"schnellen","Etter bestemt artikkel, dativ → -en"],
+      ["'en interessant bok' (nom., nøytrum)",["eine interessante Buch","ein interessantes Buch","einen interessanten Buch"],"ein interessantes Buch","Buch er nøytrum! Etter 'ein' nom. nøyt. → -es"],
+    ]
+  },
+  {
+    dag:7, tittel:"Modalverb", tema:"Können, müssen, wollen, sollen, dürfen, möchten",
+    forklaring:"Modalverb kombineres med infinitiv som alltid havner til SIST i setningen.",
+    regler:[
+      ["📗 De 6 modalverbene","können  – kan (evne/mulighet)\nmüssen  – må (nødvendighet)\nwollen  – vil (ønske)\nsollen  – skal (pålegg utenfra)\ndürfen  – får lov til (tillatelse)\nmöchten – vil gjerne (høflig ønske)"],
+      ["📘 Bøyning","       können  müssen  wollen  sollen  dürfen  möchten\nych    kann    muss    will    soll    darf    möchte\ndu     kannst  musst   willst  sollst  darfst  möchtest\ner/sie kann    muss    will    soll    darf    möchte\nwir    können  müssen  wollen  sollen  dürfen  möchten\nihr    könnt   müsst   wollt   sollt   dürft   möchtet\nsie    können  müssen  wollen  sollen  dürfen  möchten"],
+      ["📙 Modalverb + Infinitiv SIST","Ich kann Deutsch sprechen.\nEr muss jetzt gehen.\nWir wollen morgen kommen.\nDu darfst hier nicht rauchen.\nSie möchte einen Kaffee trinken."],
+    ],
+    huskeregel:"🧠 Modalverb → INFINITIV på slutten! Entall: vokalskifte fra flertall (können→kann, müssen→muss).",
+    lyttetips:"🎧 <b>Nicos Weg A2 – Ganzer Film</b> &nbsp;|&nbsp; <a href='https://www.youtube.com/results?search_query=Nicos+Weg+A2+ganzer+Film+DW+Deutsch' target='_blank' style='color:var(--green)'>▶ Søk på YouTube</a> – Lytt etter modalverb i dialogene. Infinitiven er alltid sist!",
+    ordforrad:[["können","å kunne"],["müssen","å måtte"],["wollen","å ville"],["dürfen","å få lov"],["sollen","å skulle (pålegg)"],["möchten","å ville gjerne"],["leider","dessverre"],["natürlich","selvfølgelig"],["vielleicht","kanskje"],["sofort","straks"]],
+    oppgaver:[
+      ["'Ich ___ Deutsch sprechen.' (kan)",["kann","können","kannst"],"kann","1. pers. entall av 'können' = 'kann'"],
+      ["Riktig rekkefølge: Er / muss / gehen / jetzt",["Er muss jetzt gehen.","Er jetzt muss gehen.","Er gehen muss jetzt."],"Er muss jetzt gehen.","Modalverb plass 2, infinitiv sist."],
+      ["Hva betyr 'dürfen'?",["å måtte","å få lov til","å ville"],"å få lov til","'dürfen' = tillatelse. 'müssen' = nødvendighet. 'wollen' = ønske."],
+      ["'Wir ___ morgen kommen.' (vil)",["wollen","wollt","will"],"wollen","1. pers. flertall = wollen (infinitivform)"],
+      ["'Du skal ikke røyke her.'",["Du sollst hier nicht rauchen.","Du musst hier nicht rauchen.","Du willst hier nicht rauchen."],"Du sollst hier nicht rauchen.","'sollen' = pålegg utenfra."],
+    ]
+  },
+  {
+    dag:8, tittel:"Setningsstruktur", tema:"V2-regelen, inversjon og Nebensatz",
+    forklaring:"Finittverbet er ALLTID på plass 2 i en hovedsetning. I leddsetninger havner verbet til slutt.",
+    regler:[
+      ["📗 V2-regelen – verb alltid på plass 2","Normal:    Ich gehe heute ins Kino.\nInversjon: Heute gehe ich ins Kino.\nInversjon: Im Kino sehe ich einen Film.\nUansett hva på plass 1 – verbet er alltid nr. 2!"],
+      ["📘 Leddsetninger (Nebensatz) – verb til slutt","weil (fordi):  Ich bleibe zu Hause, weil ich krank bin.\ndass (at):     Er sagt, dass er müde ist.\nobwohl:        Sie kommt, obwohl sie krank ist.\nwenn (hvis):   Wenn ich Zeit habe, komme ich.\nals (da):      Als ich jung war, wohnte ich in Berlin."],
+      ["📙 Koordinerende vs. subordinerende","Koordinerende (ingen endring): und, aber, oder, denn\nIch bin müde, aber ich arbeite.\n\nSubordinerende (verb til slutt): weil, dass, wenn, als, obwohl\nIch arbeite, weil ich Geld brauche."],
+    ],
+    huskeregel:"🧠 'Weil schickt das Verb ins Exil!' – etter weil, dass, obwohl sender verbet til slutten.",
+    lyttetips:"🎧 <b>Nicos Weg A1</b> &nbsp;|&nbsp; <a href='https://www.youtube.com/watch?v=4-eDoThe6qo' target='_blank' style='color:var(--green)'>▶ YouTube</a> – Lytt etter setninger med 'weil' – hør at verbet alltid kommer til slutt.",
+    ordforrad:[["weil","fordi"],["dass","at"],["obwohl","selv om"],["wenn","når/hvis"],["als","da (fortid)"],["aber","men"],["oder","eller"],["und","og"],["denn","for/fordi (koord.)"],["trotzdem","likevel"]],
+    oppgaver:[
+      ["'Morgen ___ ich ins Kino.' (gehen, inversjon)",["Morgen gehe ich ins Kino.","Morgen ich gehe ins Kino.","Morgen ins Kino gehe ich."],"Morgen gehe ich ins Kino.","V2: verbet (gehe) alltid plass 2"],
+      ["'Er bleibt zu Hause, ___ er krank ist.'",["weil","und","aber"],"weil","'weil' = fordi, verb til slutt"],
+      ["Riktig ordstilling etter 'obwohl'?",["obwohl er kommt nicht","obwohl kommt er nicht","obwohl er nicht kommt"],"obwohl er nicht kommt","Subordinerende → verb til slutt"],
+      ["Hvilken konjunksjon ENDRER IKKE ordstillingen?",["weil","dass","aber"],"aber","'aber' er koordinerende. 'weil'/'dass' er subordinerende."],
+      ["'Han sier at han er trøtt.'",["Er sagt, dass er müde ist.","Er sagt, dass ist er müde.","Er sagt, er ist müde dass."],"Er sagt, dass er müde ist.","Etter 'dass' → verb til slutt"],
+    ]
+  },
+  {
+    dag:9, tittel:"Pronomen & Refleksive verb", tema:"Personlige pronomen i alle kasus",
+    forklaring:"Pronomen endres med kasus. Refleksive verb har et pronomen som peker tilbake til subjektet.",
+    regler:[
+      ["📗 Pronomen – alle kasus","       Nom.  Akk.  Dat.\nych     ich   mich  mir\ndu      du    dich  dir\ner      er    ihn   ihm\nsie     sie   sie   ihr\nwir     wir   uns   uns\nihr     ihr   euch  euch\nsie     sie   sie   ihnen"],
+      ["📘 Refleksive verb med sich","sich freuen   – å glede seg\nsich fühlen   – å føle seg\nsich erinnern – å huske\nsich waschen  – å vaske seg\n\nich freue mich / du freust dich / er freut sich\nwir freuen uns / ihr freut euch / sie freuen sich"],
+      ["📙 Possessivpronomen","mein/meine (min), dein/deine (din), sein/seine (hans)\nihr/ihre (hennes/deres), unser/unsere (vår)\n\nBøyes som 'ein': mein Bruder, meine Mutter, mein Kind"],
+    ],
+    huskeregel:"🧠 Refleksive verb: 'sich' i ordlisten. Pronomen dativ: mir, dir, ihm/ihr – ligner norsk meg/deg/ham/henne!",
+    lyttetips:"🎧 <b>Nicos Weg A1</b> &nbsp;|&nbsp; <a href='https://www.youtube.com/watch?v=4-eDoThe6qo' target='_blank' style='color:var(--green)'>▶ YouTube</a> – Lytt etter 'mich/mir' vs 'dich/dir' og refleksive verb i dialogene.",
+    ordforrad:[["sich freuen","å glede seg"],["sich fühlen","å føle seg"],["sich erinnern","å huske"],["sich interessieren","å interessere seg"],["sich vorstellen","å forestille seg"],["mein/meine","min/mitt/mine"],["dein/deine","din/ditt/dine"],["sein/seine","hans"],["ihr/ihre","hennes/deres"],["unser/unsere","vår/vårt/våre"]],
+    oppgaver:[
+      ["Akkusativform av 'ich'?",["mir","mich","mein"],"mich","Akkusativ av 'ich' = 'mich': Er sieht mich."],
+      ["'Er freut ___ über das Geschenk.'",["sich","ihm","ihn"],"sich","Refleksivt, 3. pers. entall = 'sich'"],
+      ["'Ich gebe ___ das Buch.' (til deg)",["dich","dir","dein"],"dir","Dativ av 'du' = 'dir'"],
+      ["'___ Mutter ist sehr nett.' (hans)",["Sein","Seine","Seiner"],"Seine","Mutter er femininum → -e: seine Mutter"],
+      ["'Vi gleder oss over ferien.'",["Wir freuen uns über den Urlaub.","Wir freuen sich über den Urlaub.","Wir freuen euch über den Urlaub."],"Wir freuen uns über den Urlaub.","1. pers. flertall refleksivt = 'uns'"],
+    ]
+  },
+  {
+    dag:10, tittel:"Futurum & Konjunktiv II", tema:"Fremtid og hypotetiske ytringer",
+    forklaring:"Futurum: werden + infinitiv. Konjunktiv II brukes for hypotetiske/høflige ytringer og er svært vanlig i tysk.",
+    regler:[
+      ["📗 Futurum med 'werden'","ich werde / du wirst / er wird\nwir werden / ihr werdet / sie werden\n\nIch werde morgen kommen.\nObs: Oftest brukes presens+tidsadverbial: Ich komme morgen. ✓"],
+      ["📘 Konjunktiv II","Høflig:     Könnten Sie mir helfen?\nHypotetisk: Wenn ich Zeit hätte, würde ich kommen.\n\nUregelmessig konj. II:\nsein→wäre | haben→hätte | können→könnte\nmüssen→müsste | werden→würde | dürfen→dürfte"],
+      ["📙 Kondisjonalsetninger","Wenn ich reich wäre, würde ich reisen.\nWenn er Zeit hätte, käme er.\n= Wenn er Zeit hätte, würde er kommen.\n\n(würde-formen er mer vanlig i moderne tysk)"],
+    ],
+    huskeregel:"🧠 'Könnten Sie...' er MYE høfligere enn 'Können Sie...'. Würde + infinitiv er tryggeste konjunktiv II-form.",
+    lyttetips:"🎧 <b>Nicos Weg B1</b> &nbsp;|&nbsp; <a href='https://www.youtube.com/results?search_query=Nicos+Weg+B1+ganzer+Film+DW+Deutsch' target='_blank' style='color:var(--green)'>▶ Søk på YouTube</a> – Lytt etter 'würde', 'hätte', 'wäre'. Konjunktiv II er overalt i naturlig tale.",
+    ordforrad:[["würde gerne","ville gjerne"],["wenn","hvis/når"],["wäre","ville være"],["hätte","ville ha"],["könnte","kunne"],["morgen","i morgen"],["bald","snart"],["nächste Woche","neste uke"],["in Zukunft","i fremtiden"],["eines Tages","en dag"]],
+    oppgaver:[
+      ["Futurum: 'Ich ___ morgen kommen.'",["werde","wird","werden"],"werde","1. pers. entall av 'werden' = 'werde'"],
+      ["Konjunktiv II av 'sein' (1. pers. entall)",["würde","wäre","sei"],"wäre","Konjunktiv II av 'sein' = 'wäre'"],
+      ["Høflig: 'Kunne De hjelpe meg?'",["Können Sie mir helfen?","Könnten Sie mir helfen?","Würden Sie können mir helfen?"],"Könnten Sie mir helfen?","Konjunktiv II 'könnten' = mye høfligere"],
+      ["'Wenn ich Zeit ___, würde ich kommen.'",["habe","hatte","hätte"],"hätte","Hypotetisk wenn-setning → konjunktiv II: hätte"],
+      ["'Jeg ville gjerne reise til Italia.'",["Ich würde gerne nach Italien reisen.","Ich werde gerne nach Italien reisen.","Ich will gerne nach Italien reisen."],"Ich würde gerne nach Italien reisen.","'würde gerne' + infinitiv sist"],
+    ]
+  },
+  {
+    dag:11, tittel:"To-veis-preposisjoner", tema:"Retning vs. sted – Akkusativ eller dativ?",
+    forklaring:"Mange preposisjoner tar akkusativ ved bevegelse (Wohin?) eller dativ ved sted (Wo?).",
+    regler:[
+      ["📗 Wechselpräpositionen","an, auf, hinter, in, neben, über, unter, vor, zwischen\n\nBEVEGELSE (Wohin? → akkusativ):\nIch gehe in den Supermarkt.\nIch lege das Buch auf den Tisch.\n\nSTED (Wo? → dativ):\nIch bin im Supermarkt.\nDas Buch liegt auf dem Tisch."],
+      ["📘 Kontraksjoner (obligatoriske!)","in+dem=im   | in+das=ins\nan+dem=am   | an+das=ans\nbei+dem=beim| von+dem=vom\nzu+dem=zum  | zu+der=zur"],
+      ["📙 Faste uttrykk","in der Schule  (på skolen – sted)\nin die Schule  (til skolen – bevegelse)\nam Montag      (på mandag)\nzu Hause       (hjemme)\nnach Hause     (hjem – bevegelse)\nins Kino gehen / im Kino sitzen"],
+    ],
+    huskeregel:"🧠 Wohin? (Hvor hen?) = Akkusativ. Wo? (Hvor?) = Dativ. Still spørsmålet!",
+    lyttetips:"🎧 <b>Nicos Weg A2</b> &nbsp;|&nbsp; <a href='https://www.youtube.com/results?search_query=Nicos+Weg+A2+ganzer+Film+DW+Deutsch' target='_blank' style='color:var(--green)'>▶ Søk på YouTube</a> – Lytt til retningsbeskrivelser: akkusativ (bevegelse) vs. dativ (sted).",
+    ordforrad:[["in","i/inn i"],["auf","på/opp på"],["an","ved/til"],["neben","ved siden av"],["über","over"],["unter","under"],["vor","foran"],["hinter","bak"],["zwischen","mellom"],["gegenüber","overfor"]],
+    oppgaver:[
+      ["'Ich gehe ___ Supermarkt.' (in + bevegelse, mask.)",["in dem","in den","im"],"in den","Bevegelse → akkusativ. Mask. akk. = den: in den Supermarkt"],
+      ["'Das Buch liegt ___ Tisch.' (auf, mask.)",["auf den","auf dem","auf der"],"auf dem","Sted → dativ. Mask. dat. = dem"],
+      ["Kontraksjon av 'in + dem'?",["ins","in","im"],"im","in + dem = im (obligatorisk kontraksjon)"],
+      ["'Han er hjemme.'",["Er ist nach Hause.","Er ist zu Hause.","Er ist in Hause."],"Er ist zu Hause.","'zu Hause' = hjemme. 'nach Hause' = hjem (bevegelse)"],
+      ["'Sie stellt die Lampe ___ den Tisch.' (neben, bevegelse)",["neben dem","neben den","neben der"],"neben den","Bevegelse (stellen) → akkusativ. Tisch mask. akk. = den"],
+    ]
+  },
+  {
+    dag:12, tittel:"Relativsetninger & Spørreord", tema:"Relativpronomen og alle spørreord",
+    forklaring:"Relativsetninger beskriver substantiver nærmere. Relativpronomenet bøyes og verbet sendes til slutt.",
+    regler:[
+      ["📗 Relativpronomen – som bestemt artikkel!","       Nom.  Akk.  Dat.   Gen.\nMask:  der   den   dem    dessen\nFem:   die   die   der    deren\nNeut:  das   das   dem    dessen\nFlt:   die   die   denen  deren\n\nDer Mann, der dort steht, ist mein Vater.\nDie Frau, die ich kenne, heißt Anna."],
+      ["📘 Spørreord","wer/wen/wem (hvem, nom/akk/dat)\nwas (hva)   | wo (hvor)     | wohin (hvor hen)\nwoher (hvorfra)| wann (når) | wie (hvordan)\nwarum (hvorfor)| wie viel (hvor mye)\nwelcher/welche/welches (hvilken/hvilket)"],
+      ["📙 Indirekte spørsmål – verb til slutt","Direkte:   Wo wohnst du?\nIndirekte: Ich weiß nicht, wo du wohnst.\n\nDirekte:   Wann kommt er?\nIndirekte: Er fragt, wann er kommt."],
+    ],
+    huskeregel:"🧠 Relativpronomen ≈ bestemt artikkel, men genitiv = dessen/deren og dativ flertall = denen. Verb alltid til slutt!",
+    lyttetips:"🎧 <b>DW: Langsam gesprochene Nachrichten</b> &nbsp;|&nbsp; <a href='https://www.youtube.com/results?search_query=DW+Langsam+gesprochene+Nachrichten' target='_blank' style='color:var(--green)'>▶ Søk på YouTube</a> – Journalister bruker mange spørreord og relativsetninger.",
+    ordforrad:[["der/die/das ... der/die/das","... som (relativ)"],["warum","hvorfor"],["weshalb","av hvilken grunn"],["woher","hvorfra"],["wohin","hvor hen"],["welcher/welche/welches","hvilken/hvilket"],["wessen","hvems"],["wie lange","hvor lenge"],["wie oft","hvor ofte"],["seit wann","siden når"]],
+    oppgaver:[
+      ["'Der Mann, ___ dort steht, ist mein Vater.'",["den","der","dem"],"der","Mann er mask., subjekt i relativsetning (nom.) → der"],
+      ["'Die Frau, ___ ich kenne, heißt Anna.'",["die","der","den"],"die","Frau er fem., direkte obj (akk. fem.) → die"],
+      ["Indirekte spørsmål: 'Ich weiß nicht, ___ er kommt.'",["wann kommt","wann er kommt","er wann kommt"],"wann er kommt","Indirekte spørsmål = leddsetning → verb til slutt"],
+      ["Spørreordet for 'hvorfra'?",["wohin","woher","wo"],"woher","'woher' = hvorfra. 'wohin' = hvor hen. 'wo' = hvor"],
+      ["'Boken som jeg leser er interessant.'",["Das Buch, das ich lese, ist interessant.","Das Buch, den ich lese, ist interessant.","Das Buch, die ich lese, ist interessant."],"Das Buch, das ich lese, ist interessant.","Buch er nøytrum, direkte obj (akk. nøyt.) → das"],
+    ]
+  },
+  {
+    dag:13, tittel:"Ordforråd til fortelling", tema:"Fortellerord, tid, sted, følelser og handlinger",
+    forklaring:"I dag bygger vi ordforrådet til en god fortelling: temporale adverbialer, stedsbeskrivelser og emosjonelle uttrykk.",
+    regler:[
+      ["📗 Fortellerstruktur – overgangsord","INNLEDNING:    Es war einmal... / An einem Tag... / Eines Morgens...\nTIDSFREMDRIFT: Zuerst... Dann... Danach... Schließlich... Am Ende...\nÅRSAK:         Weil... / Da... / Deshalb... / Daher...\nKONTRAST:      Aber... / Jedoch... / Trotzdem... / Obwohl..."],
+      ["📘 Følelser og tilstander","glücklich (lykkelig) | traurig (trist)    | ängstlich (engstelig)\naufgeregt (spent)    | müde (trøtt)       | wütend (sint)\nüberrascht (overr.)  | erleichtert (lett) | enttäuscht (skuffet)\nneugierig (nysgjerrig)"],
+      ["📙 Handlingsverb for fortelling","laufen (løpe)       | rufen (rope)       | flüstern (hviske)\nbeobachten (observere)| entscheiden (best.)| bemerken (merke)\nentdecken (oppdage) | erzählen (fortelle)| versprechen (love)\nverlassen (forlate) | verstehen (forstå)"],
+    ],
+    huskeregel:"🧠 Fortelling = PRETERITUM (war, hatte, ging, kam). Bruk motsetninger: erst... dann... plötzlich... schließlich...",
+    lyttetips:"🎧 <b>Nicos Weg A1 – Ganzer Film</b> &nbsp;|&nbsp; <a href='https://www.youtube.com/watch?v=4-eDoThe6qo' target='_blank' style='color:var(--green)'>▶ YouTube</a> – En sammenhengende fortelling. Legg merke til preteritum og overgangsord.",
+    ordforrad:[["Es war einmal","Det var en gang"],["plötzlich","plutselig"],["schließlich","til slutt"],["deshalb","derfor"],["trotzdem","likevel"],["bemerken","å merke"],["entscheiden","å bestemme seg"],["versprechen","å love"],["entdecken","å oppdage"],["die Reise","reisen"]],
+    oppgaver:[
+      ["Typisk innledningsord for eventyr?",["Deshalb war er glücklich.","Es war einmal ein junges Mädchen.","Obwohl er müde war."],"Es war einmal ein junges Mädchen.","'Es war einmal...' er den klassiske eventyrformelen"],
+      ["Hva betyr 'plötzlich'?",["til slutt","plutselig","derfor"],"plutselig","'plötzlich' = plutselig"],
+      ["Hvilken tid brukes oftest i fortellinger?",["Presens","Preteritum","Perfektum"],"Preteritum","Preteritum er fortelletiden i skriftlig tysk"],
+      ["'hun bestemte seg': 'Sie ___'",["Sie entschied sich","Sie entscheiden sich","Sie entscheide sich"],"Sie entschied sich","'entscheiden' preteritum = entschied, refleksivt"],
+      ["'___ war es zu spät.' (til slutt)",["Deshalb","Schließlich","Trotzdem"],"Schließlich","'Schließlich' = til slutt / endelig"],
+    ]
+  },
+  {
+    dag:14, tittel:"Skriv din fortelling!", tema:"Sammenstilling – bruk alt du har lært",
+    forklaring:"Bruk alle grammatikkreglene og ordforrådet fra de 13 forrige dagene til å skrive en komplett tysk fortelling.",
+    regler:[
+      ["📗 Fortellingens struktur (5 deler)","1. INNLEDNING:  Presentér personer, sted, tid\n   Es war einmal... / An einem Herbsttag...\n\n2. OPPBYGNING:  Presenter problemet/utfordringen\n   Eines Tages... / Plötzlich...\n\n3. HØYDEPUNKT:  Det dramatiske\n   Dann passierte etwas Unerwartetes...\n\n4. LØSNING:     Hvordan ble det løst?\n   Schließlich... / Am Ende...\n\n5. AVSLUTNING:  Moral eller konklusjon"],
+      ["📘 Eksempelfortelling","Es war einmal ein junges Mädchen, das Anna hieß. Sie wohnte in einem kleinen Dorf in Bayern. Eines Morgens wachte sie auf und bemerkte, dass ihr Hund verschwunden war.\n\nSie wurde sofort ängstlich und lief aus dem Haus. Sie rief seinen Namen, aber er antwortete nicht. Deshalb entschied sie sich, in den Wald zu gehen.\n\nNach einer langen Suche fand sie ihn schließlich hinter einem alten Baum. Er hatte das Bein verletzt. Anna trug ihn nach Hause.\n\nAm Ende war Anna sehr erleichtert. Sie versprach ihm, immer besser aufzupassen."],
+      ["📙 Sjekkliste for din fortelling","✓  Preteritum (war, hatte, ging, kam)?\n✓  Nominativ riktig (der/die/das)?\n✓  Akkusativ riktig (den alte Mann)?\n✓  Overgangsord (dann, plötzlich, schließlich)?\n✓  Minst én leddsetning (weil/dass/obwohl)?\n✓  Minst ett adjektiv foran substantiv?\n✓  Minst ett modalverb?\n✓  V2-regelen overholdt?"],
+    ],
+    huskeregel:"🎉 Du har nå lært alle kjerneemnene i Tysk VG2! Skriv fortellingen din – minst 150 ord.",
+    lyttetips:"🎧 Les fortellingen din høyt og ta opp deg selv. &nbsp; <a href='https://www.youtube.com/watch?v=4-eDoThe6qo' target='_blank' style='color:var(--green)'>▶ Nicos Weg A1 på YouTube</a> for å høre autentisk tysk uttale og tempo.",
+    ordforrad:[["verschwinden","å forsvinne"],["suchen","å lete"],["finden","å finne"],["tragen","å bære"],["aufpassen","å passe på"],["erleichtert","lettet"],["dankbar","takknemlig"],["unerwartet","uventet"],["das Abenteuer","eventyret"],["das Geheimnis","hemmeligheten"]],
+    oppgaver:[
+      ["Hvilken tid brukes oftest i tyske skriftlige fortellinger?",["Presens","Preteritum","Futurum"],"Preteritum","Preteritum er fortelletiden i skriftlig tysk."],
+      ["V2: 'Plötzlich ___'",["Plötzlich kam er nach Hause.","Plötzlich er kam nach Hause.","Plötzlich nach Hause kam er."],"Plötzlich kam er nach Hause.","V2: Plötzlich på plass 1 → verb (kam) MÅ være plass 2"],
+      ["'Sie fand einen ___ Hund.' (verletzt, mask. akk.)",["verletzte","verletzten","verletzter"],"verletzten","Etter 'einen' (mask. akk. ubestemt) → -en"],
+      ["'Sie war froh, ___ sie ihn gefunden hatte.'",["dass","weil","obwohl"],"dass","'dass' = at. Hun var glad for AT hun hadde funnet ham."],
+      ["'Han hadde lovet å passe bedre på.'",["Er hatte versprochen, besser aufzupassen.","Er hat versprochen besser aufpassen.","Er versprochen hatte besser aufzupassen."],"Er hatte versprochen, besser aufzupassen.","Pluskvamperfektum: hatte + versprochen. Inf. m/zu: aufzupassen"],
+    ]
+  }
+];
+
+
+// ── State
+let dag = 0, fane = 'grammatikk';
+const svar = {}, riktig = {};
+
+// ── Helpers
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escA(s) { return String(s).replace(/'/g,"\\'"); }
+function ferdig(di) { return curriculum[di].oppgaver.every((_,oi) => svar[di+'-'+oi] !== undefined); }
+
+// ── Stats
+function stats() {
+  document.getElementById('sR').textContent = Object.keys(riktig).length;
+  document.getElementById('sB').textContent = Object.keys(svar).length;
+  document.getElementById('sD').textContent = curriculum.filter((_,i) => ferdig(i)).length;
+}
+
+// ── Picker
+function picker() {
+  const el = document.getElementById('picker');
+  el.innerHTML = '';
+  curriculum.forEach((d,i) => {
+    const b = document.createElement('button');
+    const ok = ferdig(i);
+    b.className = 'pbtn' + (i===dag?' active':'') + (ok?' done':'');
+    b.textContent = (ok?'✓ ':'') + 'Dag ' + d.dag;
+    b.title = d.tittel;
+    b.onclick = () => { dag=i; fane='grammatikk'; render(); };
+    el.appendChild(b);
+  });
+  // scroll active into view on mobile
+  const a = el.querySelector('.active');
+  if (a) setTimeout(() => a.scrollIntoView({block:'nearest',inline:'center'}), 50);
+}
+
+// ── Main render
+function render() {
+  picker();
+  stats();
+  const d = curriculum[dag];
+  const done = d.oppgaver.filter((_,oi) => svar[dag+'-'+oi]!==undefined).length;
+  const pct = Math.round(done/d.oppgaver.length*100);
+
+  let h = `<div class="dag-nr">Dag ${d.dag} · 30 minutter</div>
+<h2 class="dag-h2">${d.tittel}</h2>
+<div class="dag-tema">${d.tema}</div>
+<div class="tabs">
+  <button class="tbtn${fane==='grammatikk'?' active':''}" onclick="setFane('grammatikk')">📚 Grammatikk</button>
+  <button class="tbtn${fane==='ordforrad'?' active':''}" onclick="setFane('ordforrad')">📝 Ordforråd</button>
+  <button class="tbtn${fane==='oppgaver'?' active':''}" onclick="setFane('oppgaver')">✏️ Oppgaver (${done}/${d.oppgaver.length})</button>
+</div>`;
+
+  // GRAMMATIKK
+  h += `<div class="panel${fane==='grammatikk'?' active':''}">`;
+  h += `<div class="card"><p class="card-intro">${d.forklaring}</p></div>`;
+  d.regler.forEach(([t,b]) => h += `<div class="card"><div class="regel-t">${t}</div><pre class="regel-b">${esc(b)}</pre></div>`);
+  h += `<div class="huskeregel">${d.huskeregel}</div>`;
+  h += `<div class="lyttetips">${d.lyttetips}</div>`;
+  h += `</div>`;
+
+  // ORDFORRÅD
+  h += `<div class="panel${fane==='ordforrad'?' active':''}">`;
+  h += `<div class="vocab-grid">`;
+  d.ordforrad.forEach(([de,no]) => h += `<div class="vocab-card"><span class="v-de">${esc(de)}</span><span class="v-no">${esc(no)}</span></div>`);
+  h += `</div><div class="card" style="color:#b0a898;font-size:13.5px;line-height:1.8"><b style="color:var(--gold)">💡 Tips:</b> Skriv hvert ord med artikkelen 5 ganger. Bruk Anki for spaced repetition.</div></div>`;
+
+  // OPPGAVER
+  h += `<div class="panel${fane==='oppgaver'?' active':''}">`;
+  h += `<div class="prog-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>`;
+  if (done===d.oppgaver.length) h += `<div class="done-msg">✓ Alle oppgaver for Dag ${d.dag} fullført!</div>`;
+  d.oppgaver.forEach(([q,alts,ans,fkl],oi) => {
+    const key = dag+'-'+oi, v = svar[key], vist = v!==undefined;
+    h += `<div class="opp-kort"><div class="opp-nr">Oppgave ${oi+1}</div><div class="opp-q">${esc(q)}</div>`;
+    alts.forEach(a => {
+      let cls = vist ? (a===ans?'riktig':a===v?'galt':'') : (a===v?'valgt':'');
+      let pfx = vist&&a===ans?'✓ ':vist&&a===v&&a!==ans?'✗ ':'';
+      h += `<button class="alt ${cls}" ${vist?'disabled':''} onclick="velg(${dag},${oi},'${escA(a)}')">${pfx}${esc(a)}</button>`;
+    });
+    if (vist) h += `<div class="fasit"><span class="fasit-lbl">Fasit:</span>${esc(fkl)}</div>`;
+    h += `</div>`;
+  });
+  h += `</div>`;
+
+  document.getElementById('main').innerHTML = h;
+  document.getElementById('main').scrollTop = 0;
+}
+
+function setFane(f) { fane=f; render(); }
+function velg(di,oi,a) {
+  const k=di+'-'+oi;
+  if (svar[k]!==undefined) return;
+  svar[k]=a;
+  if (a===curriculum[di].oppgaver[oi][2]) riktig[k]=true;
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
